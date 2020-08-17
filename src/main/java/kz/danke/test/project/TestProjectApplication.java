@@ -1,9 +1,10 @@
 package kz.danke.test.project;
 
 import kz.danke.test.project.model.Course;
-import kz.danke.test.project.model.Student;
+import kz.danke.test.project.model.Role;
+import kz.danke.test.project.model.User;
 import kz.danke.test.project.repository.CourseRepository;
-import kz.danke.test.project.repository.StudentRepository;
+import kz.danke.test.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,8 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootApplication
@@ -21,13 +24,16 @@ import java.util.List;
 public class TestProjectApplication {
 
 	private final CourseRepository courseRepository;
-	private final StudentRepository studentRepository;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public TestProjectApplication(CourseRepository courseRepository,
-								  StudentRepository studentRepository) {
+								  UserRepository userRepository,
+								  PasswordEncoder passwordEncoder) {
 		this.courseRepository = courseRepository;
-		this.studentRepository = studentRepository;
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Bean
@@ -38,13 +44,21 @@ public class TestProjectApplication {
 					new Course("second course", "second course"),
 					new Course("third course", "third course")
 			);
-			List<Student> students = Arrays.asList(
-					new Student("first student", "first student"),
-					new Student("second student", "second student"),
-					new Student("third student", "third student")
+			User first = new User("first", passwordEncoder.encode("first"), "first student");
+			User second = new User("second", passwordEncoder.encode("second"), "second student");
+			User third = new User("third", passwordEncoder.encode("third"), "third student");
+
+			first.setAuthorities(Collections.singleton(Role.ROLE_USER));
+			second.setAuthorities(Collections.singleton(Role.ROLE_USER));
+			third.setAuthorities(Collections.singleton(Role.ROLE_ADMIN));
+
+			List<User> users = Arrays.asList(
+					first,
+					second,
+					third
 			);
 			courseRepository.saveAll(courses);
-			studentRepository.saveAll(students);
+			userRepository.saveAll(users);
 		};
 	}
 

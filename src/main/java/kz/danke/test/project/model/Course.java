@@ -46,7 +46,7 @@ public class Course {
             },
             mappedBy = "courses"
     )
-    private List<Student> students = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     public Course(String name, String description) {
         this.name = name;

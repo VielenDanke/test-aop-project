@@ -1,6 +1,6 @@
 package kz.danke.test.project.aspect;
 
-import kz.danke.test.project.model.Student;
+import kz.danke.test.project.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -44,12 +44,12 @@ public class LoggingAspect {
 
     @AfterReturning(
             pointcut = "execution(* kz.danke.test.project.service.CrudOperations.findAll())",
-            returning = "students"
+            returning = "users"
     )
-    public void afterReturningFindAllStudentsAdvice(JoinPoint joinPoint, List<Student> students) {
+    public void afterReturningFindAllStudentsAdvice(JoinPoint joinPoint, List<User> users) {
         log.info("After returning method: " + joinPoint.getSignature().toShortString());
 
-        students
+        users
                 .forEach(std -> log.info(std.toString()));
     }
 
@@ -99,12 +99,12 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
 
         Stream.of(args)
-                .filter(obj -> obj.getClass().isAssignableFrom(Student.class))
+                .filter(obj -> obj.getClass().isAssignableFrom(User.class))
                 .findAny()
                 .ifPresent(std -> {
-                    Student student = (Student) std;
+                    User user = (User) std;
 
-                    log.info("Name is: " + student.getUsername());
+                    log.info("Name is: " + user.getUsername());
                 });
     }
 }

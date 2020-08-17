@@ -6,10 +6,12 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "student")
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,14 +19,14 @@ import java.util.List;
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id"
 )
-public class Student {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
     @Column(name = "password")
@@ -32,6 +34,14 @@ public class Student {
 
     @Column(name = "full_name")
     private String fullName;
+
+    @CollectionTable(
+            name = "student_authorities",
+            joinColumns = @JoinColumn(name = "student_id")
+    )
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> authorities = new HashSet<>();
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -48,12 +58,12 @@ public class Student {
     )
     private List<Course> courses = new ArrayList<>();
 
-    public Student(String username, String fullName) {
+    public User(String username, String fullName) {
         this.username = username;
         this.fullName = fullName;
     }
 
-    public Student(String username, String password, String fullName) {
+    public User(String username, String password, String fullName) {
         this.username = username;
         this.password = password;
         this.fullName = fullName;

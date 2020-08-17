@@ -33,6 +33,8 @@ public class LoggingAspect {
     @AfterReturning only on success
 
     @AfterThrowing only on exception
+
+    @Around working before and after method
      */
 
     @After("execution(* kz.danke.test.project.service.CrudOperations.findAll())")

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,7 @@ public class UserController {
 
     @GetMapping
     @JsonView(UserView.UserInfo.class)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserDTO>> findAllStudents() {
         List<UserDTO> userDTOList = studentCrudOperations
                 .findAll()
@@ -50,6 +52,7 @@ public class UserController {
 
     @GetMapping(value = "/courses")
     @JsonView(UserView.FullInfo.class)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserDTO>> findAllStudentsWithCourses() {
         List<UserDTO> userDTOList = userService
                 .findAllWithCourses()
@@ -62,6 +65,7 @@ public class UserController {
 
     @GetMapping(value = "/{id}")
     @JsonView(UserView.FullInfo.class)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> findStudentById(@PathVariable(name = "id") String id) {
         User user = studentCrudOperations.findById(id);
 
@@ -87,6 +91,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Void> deleteStudent(@PathVariable(name = "id") String id) {
         studentCrudOperations.delete(id);
 
@@ -94,6 +99,7 @@ public class UserController {
     }
 
     @GetMapping("/cabinet")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @JsonView(UserView.FullInfo.class)
     public ResponseEntity<UserDTO> getPersonalCabinet(@AuthenticationPrincipal String id) {
         User user = studentCrudOperations.findById(id);

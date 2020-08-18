@@ -1,5 +1,6 @@
 package kz.danke.test.project;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.danke.test.project.model.Course;
 import kz.danke.test.project.model.Role;
 import kz.danke.test.project.model.User;
@@ -34,6 +35,11 @@ public class TestProjectApplication {
 		this.courseRepository = courseRepository;
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper();
 	}
 
 	@Bean

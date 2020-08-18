@@ -29,16 +29,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final Environment environment;
     private final TokenService tokenService;
+    private final FilterResponseHandler filterResponseHandler;
 
     @Autowired
     public SecurityConfig(PasswordEncoder passwordEncoder,
                           @Qualifier("userServiceImpl") UserDetailsService userDetailsService,
                           Environment environment,
-                          TokenService tokenService) {
+                          TokenService tokenService,
+                          FilterResponseHandler filterResponseHandler) {
         this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
         this.environment = environment;
         this.tokenService = tokenService;
+        this.filterResponseHandler = filterResponseHandler;
     }
 
     @Override
@@ -73,23 +76,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(getAuthorizationFilter());
     }
 
-    @SneakyThrows
     @Bean
-    public AuthenticationFilter getAuthenticationFilter() {
+    public AuthenticationFilter getAuthenticationFilter() throws Exception {
         final String filterProcessesUrl = "/login";
 
         AuthenticationFilter filter = new AuthenticationFilter(
-                authenticationManager(), environment, tokenService
+                authenticationManager(), tokenService
         );
-
+        filter.setFilterResponseHandler(filterResponseHandler);
         filter.setFilterProcessesUrl(filterProcessesUrl);
 
         return filter;
     }
 
-    @SneakyThrows
     @Bean
-    public AuthorizationFilter getAuthorizationFilter() {
+    public AuthorizationFilter getAuthorizationFilter() throws Exception {
         return new AuthorizationFilter(authenticationManager(), environment, tokenService);
     }
 }

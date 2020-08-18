@@ -2,12 +2,11 @@ package kz.danke.test.project.configuration.security.token.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import kz.danke.test.project.configuration.security.CustomUserDetails;
 import kz.danke.test.project.configuration.security.token.TokenService;
-import kz.danke.test.project.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,7 +43,6 @@ public class TokenServiceImpl implements TokenService {
                         SignatureAlgorithm.HS512
                 )
                 .compact();
-
     }
 
     @Override

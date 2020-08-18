@@ -1,14 +1,10 @@
 package kz.danke.test.project.configuration.security.filter;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import kz.danke.test.project.configuration.security.CustomUserDetails;
 import kz.danke.test.project.configuration.security.token.TokenService;
-import kz.danke.test.project.model.User;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -18,7 +14,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -79,8 +74,10 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
+        String userId = tokenService.getTokenSubject(token);
+
         return new UsernamePasswordAuthenticationToken(
-                tokenService.getTokenSubject(token),
+                userId,
                 null,
                 roles);
     }

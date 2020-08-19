@@ -1,6 +1,8 @@
 package kz.danke.test.project.service.impl;
 
 import kz.danke.test.project.configuration.security.CustomUserDetails;
+import kz.danke.test.project.exception.NotFoundException;
+import kz.danke.test.project.model.Course;
 import kz.danke.test.project.model.User;
 import kz.danke.test.project.repository.UserRepository;
 import kz.danke.test.project.service.CrudOperations;
@@ -19,10 +21,13 @@ import java.util.List;
 public class UserServiceImpl implements CrudOperations<User>, UserService, UserDetailsService {
 
     private final UserRepository userRepository;
+    private final CrudOperations<Course> courseCrudOperations;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository,
+                           CrudOperations<Course> courseCrudOperations) {
         this.userRepository = userRepository;
+        this.courseCrudOperations = courseCrudOperations;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class UserServiceImpl implements CrudOperations<User>, UserService, UserD
         long studentId = Long.parseLong(id);
 
         return userRepository.findByIdWithCourses(studentId)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new NotFoundException(String.format("User with ID %s not found", id)));
     }
 
     @Override
@@ -58,6 +63,37 @@ public class UserServiceImpl implements CrudOperations<User>, UserService, UserD
         long studentId = Long.parseLong(id);
 
         userRepository.deleteById(studentId);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void addCourseToUser(String userId, String courseId) {
+        Course courseById = courseCrudOperations.findById(courseId);
+
+        userRepository.insertUserIdAndCourseId(Long.parseLong(userId), courseById.getId());
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteExistingCourse(String userId, String courseId) {
+        User userInSession = findById(userId);
+
+        long idCourseToDelete = Long.parseLong(courseId);
+
+        List<Course> courses = userInSession.getCourses();
+
+        boolean isCourseExists = courses
+                .stream()
+                .anyMatch(course -> course.getId().equals(idCourseToDelete));
+
+        if (isCourseExists) {
+            userRepository.deleteCourseFromUser(
+                    Long.parseLong(userId),
+                    Long.parseLong(courseId)
+            );
+        } else {
+            throw new NotFoundException("User course not found");
+        }
     }
 
     @Override

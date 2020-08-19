@@ -7,4 +7,8 @@ import java.util.List;
 public interface UserService {
 
     List<User> findAllWithCourses();
+
+    void addCourseToUser(String userId, String courseId);
+
+    void deleteExistingCourse(String userId, String courseId);
 }
